@@ -28,9 +28,6 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 
-# Documentation
-site/
-
 # Notebooks
 .ipynb_checkpoints/
 
