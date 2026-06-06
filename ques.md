@@ -199,3 +199,193 @@ After running the demo (25 batches, drift starts at batch 8):
 | PSI aggregate (heavily drifted) | 9-17 |
 | MMD (heavily drifted) | 0.33-0.45 |
 | Alerts triggered | 54-90 per run |
+
+## 8. How to use this in actual production ML projects
+
+### Wrapping Your Existing Model
+
+The simplest approach — wrap any trained model with an adapter that handles monitoring automatically.
+
+**With scikit-learn:**
+```python
+import joblib
+from driftwatch.integrations.sklearn_adapter import SklearnAdapter
+
+model = joblib.load("production_model.pkl")
+adapter = SklearnAdapter(model)
+
+result = adapter.predict(X_batch)
+if result["drift"]["drift_detected"]:
+    alert_team()  # Your alerting logic
+```
+
+**With a custom model (PyTorch, TensorFlow, XGBoost, etc.):**
+```python
+from driftwatch.monitors.stream_monitor import StreamMonitor
+from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
+
+stream = StreamMonitor()
+confidence = ConfidenceMonitor()
+
+# Fit on your training data once
+stream.fit(X_train)
+
+# Then for each production batch:
+stream_result = stream.process_batch(X_batch)
+conf_result = confidence.update(model_probs)
+
+if stream_result["drift_detected"]:
+    print(f"Data drift: {stream_result['scores']}")
+if conf_result["mean_confidence"] < 0.7:
+    print(f"Warning: confidence dropping")
+```
+
+### Production Integration Patterns
+
+#### Pattern A: Scheduled Batch Monitoring (CRON / Airflow)
+
+```python
+# monitoring_job.py — run via cron or Airflow daily
+import pandas as pd
+from driftwatch.monitors.stream_monitor import StreamMonitor
+from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
+
+production_features = pd.read_parquet("s3://bucket/production/2024-01-01.parquet")
+production_preds = pd.read_parquet("s3://bucket/predictions/2024-01-01.parquet")
+
+stream = StreamMonitor()
+stream.fit(pd.read_parquet("s3://bucket/training_features.parquet"))
+confidence = ConfidenceMonitor()
+
+drift_result = stream.process_batch(production_features.values)
+conf_result = confidence.update(production_preds.values)
+
+stream.export_results(format="json", filepath=f"reports/drift_2024-01-01.json")
+
+if drift_result["status"] == "critical":
+    send_pagerduty_alert(f"Critical drift detected: {drift_result['scores']}")
+```
+
+#### Pattern B: Real-Time Streaming (Kafka / Kinesis)
+
+```python
+# streaming_monitor.py — runs alongside your inference service
+from driftwatch.monitors.stream_monitor import StreamMonitor
+import numpy as np
+
+stream = StreamMonitor()
+stream.fit(X_train)  # Run once at service startup
+
+def on_batch(batch: np.ndarray):
+    """Called for every incoming micro-batch."""
+    result = stream.process_batch(batch)
+
+    if result["status"] == "critical":
+        increment_metric("drift.critical", 1)
+    elif result["status"] == "warning":
+        increment_metric("drift.warning", 1)
+
+    log_metric("drift.kl_score", result["scores"].get("kl", 0))
+    log_metric("drift.psi_score", result["scores"].get("psi", 0))
+
+    return result
+```
+
+#### Pattern C: Inference Service Middleware (FastAPI / Flask)
+
+```python
+from fastapi import FastAPI
+from driftwatch.monitors.stream_monitor import StreamMonitor
+import numpy as np
+
+app = FastAPI()
+stream = StreamMonitor()
+
+@app.on_event("startup")
+async def startup():
+    stream.fit(np.load("training_data.npy"))
+
+@app.post("/predict")
+async def predict(features: list):
+    batch = np.array(features)
+
+    # Check drift BEFORE prediction
+    drift_result = stream.process_batch(batch)
+
+    # Your model inference
+    predictions = model.predict(batch)
+
+    if drift_result["drift_detected"]:
+        log_alert(f"Drift detected: {drift_result['status']}")
+
+    return {"predictions": predictions.tolist(), "drift_status": drift_result["status"]}
+```
+
+### Setting Up the Full Production Pipeline
+
+**Step 1: Fit on training data (one-time setup)**
+```python
+import joblib
+from driftwatch.monitors.stream_monitor import StreamMonitor
+
+monitor = StreamMonitor()
+monitor.fit(X_train)
+joblib.dump(monitor, "production_monitor.pkl")
+```
+
+**Step 2: Deploy the saved monitor alongside your model**
+```python
+import joblib
+monitor = joblib.load("production_monitor.pkl")
+result = monitor.process_batch(X_batch)
+```
+
+**Step 3: Run scheduled correlation analysis**
+```python
+from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
+
+correlation = ConfidenceDriftCorrelation()
+for batch in today_batches:
+    result = monitor.process_batch(batch)
+    correlation.add_observation(confidence=mean_confidence, drift_scores=result["scores"])
+
+summary = correlation.summary()
+monitor.export_results(format="csv", filepath=f"drift_report_{today}.csv")
+
+if summary["early_warning_score"] > 50:
+    send_alert(f"Early warning: confidence-drift score {summary['early_warning_score']:.1f}/100")
+```
+
+### Choosing the Right Detector for Production
+
+| Scenario | Best Detector | Why |
+|----------|:-------------:|:----|
+| **Categorical features** | KL | Discrete probability comparison |
+| **Numerical features** | PSI | Binned stability index, per-feature reporting |
+| **Multivariate drift** | MMD | Kernel-based, detects joint distribution shifts |
+| **Streaming data** | ADWIN | Adaptive window, doesn't need reference data |
+| **Low false positive priority** | KL + MMD | Both maintain 0% FPR in benchmarks |
+| **High sensitivity priority** | PSI | Catches even small shifts (60% FPR trade-off) |
+| **Production default** | PSI + MMD | Best balance of sensitivity + specificity |
+
+### Production Deployment
+
+```bash
+# Install on production server
+pip install driftwatch
+
+# Set up cron job for hourly drift checks
+# crontab:
+0 * * * * cd /app && python monitoring_job.py >> /var/log/driftwatch.log 2>&1
+
+# Or run the dashboard
+python -m driftwatch.dashboard.server --host 0.0.0.0 --port 8501
+```
+
+### Key Production Considerations
+
+- **Monitor is stateless per batch** — safe to reload from joblib on service restart
+- **Export to JSON/CSV** for integration with your observability stack (Grafana, DataDog, etc.)
+- **The correlation module is your differentiator** — it's the feature no other tool offers
+- **PSI is the most practical production detector** — it catches everything and tells you which features shifted
+- **Fit once, deploy everywhere** — the fitted monitor is just a Python object you can serialize and distribute
