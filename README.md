@@ -123,14 +123,14 @@ Production Data Stream
            │
     ┌──────┴──────┐
     ▼             ▼
-┌────────┐  ┌──────────────────┐
-│ Drift  │  │   Confidence     │
+┌─────────┐  ┌──────────────────┐
+│ Drift   │  │   Confidence     │
 │Detectors│  │   Monitor        │
-│KL/PSI/ │  │ Entropy, Margin, │
+│KL/PSI/  │  │ Entropy, Margin, │
 │MMD/ADWIN│  │ Trend Analysis   │
-└────┬───┘  └────────┬─────────┘
-     │               │
-     └───────┬───────┘
+└────┬────┘  └────────┬─────────┘
+     │                │
+     └───────┬────────┘
              │
              ▼
 ┌─────────────────────┐
@@ -381,10 +381,10 @@ DriftWatch connects to an established literature on uncertainty estimation and d
 ## Citation
 
 ```bibtex
-@software{driftwatch2025,
+@software{driftwatch2026,
   author = {Roy, Sourav},
   title = {DriftWatch: Real-time Data Drift Detection for Production ML Systems},
-  year = {2025},
+  year = {2026},
   url = {https://github.com/royxlead/driftwatch}
 }
 ```
