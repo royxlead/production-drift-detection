@@ -137,7 +137,11 @@ class DetectionMetrics:
         ])
         mean_volatility = float(np.mean(rolling_std))
 
-        autocorr = float(np.corrcoef(scores[:-1], scores[1:])[0, 1]) if len(scores) > 1 else 0
+        # np.corrcoef divides by std dev — guard against zero-variance signals
+        if len(scores) > 1 and np.std(scores[:-1]) > 1e-12 and np.std(scores[1:]) > 1e-12:
+            autocorr = float(np.corrcoef(scores[:-1], scores[1:])[0, 1])
+        else:
+            autocorr = 0.0
 
         return {
             "stability": float(1.0 / (1.0 + cv)),
