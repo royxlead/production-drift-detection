@@ -7,7 +7,7 @@
     <a href="#architecture">Architecture</a> •
     <a href="#drift-detection-methods">Methods</a> •
     <a href="#dashboard">Dashboard</a> •
-    <a href="RESEARCH_NOTE.md">Research</a>
+    <a href="#research-background">Research</a>
   </p>
 </div>
 
@@ -25,7 +25,7 @@ DriftWatch is a lightweight, pip-installable Python library for monitoring data 
 - **Confidence monitoring** with entropy, margin, and trend analysis
 - **Novel confidence-drift correlation** — detect if confidence changes precede drift detection
 - **Alerting system** with severity levels (Healthy → Watch → Warning → Critical)
-- **Interactive Streamlit dashboard** with 6 pages of visualizations
+- **Interactive dashboard** with 6 pages of visualizations (FastAPI + Chart.js)
 - **Synthetic drift generator** for reproducible experiments (8 drift types)
 - **Integrations**: Scikit-learn, PyTorch, HuggingFace (DistilBERT)
 - **Evaluation framework** with detection latency, FPR, stability, sensitivity metrics
@@ -70,9 +70,9 @@ pip install -e ".[all]"
 
 ### Requirements
 
-- Python ≥ 3.9
+- Python >= 3.9
 - NumPy, Pandas, SciPy, Scikit-learn (required)
-- Plotly, Streamlit (required for dashboard)
+- Plotly, FastAPI, Uvicorn (required for dashboard)
 - PyTorch (optional, for PyTorch adapter)
 - Transformers (optional, for HuggingFace adapter)
 
@@ -96,19 +96,19 @@ production = np.random.normal(2, 1, (500, 3))
 kl_detector = KLDivergenceDetector(threshold=0.1)
 kl_detector.fit(reference)
 result = kl_detector.detect(production)
-print(f"KL Divergence: {result['score']:.4f} — Drift: {result['drift_detected']}")
+print(f"KL Divergence: {result['score']:.4f} - Drift: {result['drift_detected']}")
 
 # PSI Detector
 psi_detector = PSIDetector(threshold=0.1)
 psi_detector.fit(reference)
 result = psi_detector.detect(production)
-print(f"PSI: {result['score']:.4f} — Drift: {result['drift_detected']}")
+print(f"PSI: {result['score']:.4f} - Drift: {result['drift_detected']}")
 
 # MMD Detector
 mmd_detector = MMDDetector(threshold=0.05)
 mmd_detector.fit(reference)
 result = mmd_detector.detect(production)
-print(f"MMD: {result['score']:.4f} — Drift: {result['drift_detected']}")
+print(f"MMD: {result['score']:.4f} - Drift: {result['drift_detected']}")
 ```
 
 ### Streaming monitoring
@@ -132,7 +132,6 @@ for batch_idx in range(10):
 
 ```bash
 python demo.py
-python demo.py --dashboard  # Launch Streamlit dashboard
 ```
 
 ---
@@ -143,38 +142,39 @@ The library follows a modular structure:
 
 ```
 driftwatch/
-├── __init__.py              # Package init with version
-├── detectors/               # Drift detection algorithms
-│   ├── base.py              # Abstract base class
-│   ├── kl.py                # KL Divergence
-│   ├── psi.py               # Population Stability Index
-│   ├── mmd.py               # Maximum Mean Discrepancy
-│   └── adwin.py             # ADWIN-style adaptive windowing
-├── monitors/                # High-level monitors
-│   ├── stream_monitor.py    # Batch ingestion and coordination
-│   └── confidence_monitor.py # Confidence, entropy, margin tracking
-├── alerts/                  # Alerting system
-│   ├── schemas.py           # Alert dataclass, Severity enum
-│   └── rules.py             # ThresholdRule, RollingWindowRule, AlertEngine
-├── correlation/             # Novel research module
-│   └── confidence_drift.py  # Confidence-drift correlation analysis
-├── data/                    # Data utilities
-│   ├── synthetic_drift.py   # 8 drift types for reproducible experiments
-│   └── loaders.py           # Dataset loaders for demos
-├── integrations/            # Model integration adapters
-│   ├── sklearn_adapter.py   # Scikit-learn wrapper
-│   ├── pytorch_adapter.py   # PyTorch wrapper
-│   └── hf_adapter.py        # HuggingFace DistilBERT wrapper
-├── evaluation/              # Evaluation framework
-│   ├── metrics.py           # Latency, FPR, stability, sensitivity
-│   └── benchmarks.py        # Benchmark framework + external tool compat
-├── dashboard/               # Streamlit visualization
-│   ├── app.py               # Multi-page dashboard
-│   └── visuals.py           # Plotly visualization helpers
-└── utils/                   # Shared utilities
-    ├── validation.py        # Input validation
-    ├── logging.py           # Logging configuration
-    └── stats.py             # Statistical helpers
++-- __init__.py              # Package init with version
++-- detectors/               # Drift detection algorithms
+|   +-- base.py              # Abstract base class
+|   +-- kl.py                # KL Divergence
+|   +-- psi.py               # Population Stability Index
+|   +-- mmd.py               # Maximum Mean Discrepancy
+|   +-- adwin.py             # ADWIN-style adaptive windowing
++-- monitors/                # High-level monitors
+|   +-- stream_monitor.py    # Batch ingestion and coordination
+|   +-- confidence_monitor.py # Confidence, entropy, margin tracking
++-- alerts/                  # Alerting system
+|   +-- schemas.py           # Alert dataclass, Severity enum
+|   +-- rules.py             # ThresholdRule, RollingWindowRule, AlertEngine
++-- correlation/             # Novel research module
+|   +-- confidence_drift.py  # Confidence-drift correlation analysis
++-- data/                    # Data utilities
+|   +-- synthetic_drift.py   # 8 drift types for reproducible experiments
+|   +-- loaders.py           # Dataset loaders for demos
++-- integrations/            # Model integration adapters
+|   +-- sklearn_adapter.py   # Scikit-learn wrapper
+|   +-- pytorch_adapter.py   # PyTorch wrapper
+|   +-- hf_adapter.py        # HuggingFace DistilBERT wrapper
++-- evaluation/              # Evaluation framework
+|   +-- metrics.py           # Latency, FPR, stability, sensitivity
+|   +-- benchmarks.py        # Benchmark framework + external tool compat
++-- dashboard/               # FastAPI-based interactive dashboard
+|   +-- server.py            # FastAPI backend with REST API
+|   +-- visuals.py           # Plotly visualization helpers
+|   +-- static/              # Frontend (HTML, CSS, JS with Chart.js)
++-- utils/                   # Shared utilities
+    +-- validation.py        # Input validation
+    +-- logging.py           # Logging configuration
+    +-- stats.py             # Statistical helpers
 ```
 
 ### Unified Detector API
@@ -216,7 +216,7 @@ A kernel-based two-sample test using RBF (Gaussian) kernels. Supports multivaria
 
 - Median heuristic for automatic bandwidth selection
 - Configurable subsample for large datasets
-- Biased MMD² estimator for computational efficiency
+- Biased MMD estimator for computational efficiency
 
 ### 4. ADWIN-Style Adaptive Windowing
 
@@ -279,16 +279,16 @@ This module connects to established research in:
 - **Conformal prediction** (Vovk et al., 2005)
 - **Calibration-aware monitoring** (Guo et al., 2017)
 
-See [RESEARCH_NOTE.md](RESEARCH_NOTE.md) for the full theoretical background.
+See the [Research Background](#research-background) section for the full theoretical background.
 
 ---
 
 ## Dashboard
 
-Launch the interactive Streamlit dashboard:
+Launch the interactive dashboard:
 
 ```bash
-streamlit run src/driftwatch/dashboard/app.py
+python -m driftwatch.dashboard.server
 ```
 
 Or after running the demo:
@@ -447,7 +447,149 @@ DriftWatch was built on the premise that production ML monitoring should go beyo
 - **NannyML** focuses on post-deployment monitoring but doesn't explore lead-lag relationships
 - **Why DriftWatch?** We believe confidence degradation can serve as an earlier warning signal than drift scores alone, especially for gradual distribution shifts
 
-See [RESEARCH_NOTE.md](RESEARCH_NOTE.md) for the full academic and theoretical background.
+See the [Research Background](#research-background) section below for the full academic and theoretical background.
+
+---
+
+## Research Background
+
+### The Problem: Late Labels in Production
+
+In production ML systems, ground truth labels often arrive with significant delay:
+
+- **Credit risk models**: defaults take months to confirm
+- **Medical diagnosis**: pathology results take days to weeks
+- **Fraud detection**: chargebacks take weeks to materialize
+- **Recommendation systems**: user satisfaction is measured indirectly
+
+By the time accuracy degradation is confirmed, the model may have been producing poor predictions for thousands or millions of inferences. **Unsupervised monitoring** — detecting degradation without labels — is therefore essential for production ML reliability.
+
+### Distribution Shift and Its Effects
+
+#### Covariate Shift
+
+When P(X) changes but P(Y|X) remains constant, the model is tested on regions of the input space where it has no training experience. Confidence in these regions is typically **calibrated only for training distribution**, meaning the model will tend to be **overconfident** on out-of-distribution (OOD) inputs.
+
+#### Prior Probability Shift
+
+When P(Y) changes, even if P(X|Y) stays constant, the marginal distribution P(X) shifts and the model's predicted class probabilities may become miscalibrated.
+
+#### Concept Drift
+
+When P(Y|X) itself changes, this is the most dangerous form of drift, as the underlying relationship between inputs and targets has changed.
+
+### Why Confidence Can Degrade Before Accuracy
+
+#### Neural Networks as Implicit Distance Estimators
+
+Modern neural networks, particularly those with Batch Normalization and ReLU activations, exhibit a property: they tend to make **low-confidence predictions on inputs far from the training distribution**.
+
+This is because:
+
+- **Feature space geometry**: Neural networks partition the feature space into decision regions. Near training data, decision boundaries are well-defined. Far from training data, the network extrapolates, often producing **nearly uniform softmax outputs** (high entropy) or **confident-but-wrong predictions**.
+- **Softmax calibration**: The softmax function produces valid probabilities only if the logits are well-calibrated. In distribution, temperature scaling (Guo et al., 2017) can achieve calibration. **Out of distribution, the calibration breaks down**, and softmax outputs are no longer reliable indicators of model uncertainty.
+- **Empirical observation**: Multiple studies have observed that **model confidence drops before accuracy degrades** under gradual drift because:
+  1. Confidence is a continuous metric that responds to small perturbations
+  2. Accuracy is a discontinuous metric (a prediction is right or wrong)
+  3. The model becomes uncertain about boundary cases before it crosses the threshold into consistent error
+
+#### The Confidence-Accuracy Gap
+
+Under distribution shift, the ECE (Expected Calibration Error) measures the gap between confidence and accuracy. As drift increases:
+
+1. ECE increases (model becomes overconfident or underconfident)
+2. Mean confidence changes (typically decreases)
+3. Entropy increases (predictions become more uniform)
+4. **These changes precede accuracy degradation in many practical scenarios**
+
+#### Entropy as an Uncertainty Signal
+
+The entropy of the predictive distribution H(p) = -sum(p_k log p_k) signals:
+- **Low entropy**: Confident prediction (correct or incorrect)
+- **High entropy**: Uncertain prediction (typically indicates OOD)
+
+Entropy monitoring can detect when the model moves into regions where it lacks training data.
+
+### Connection to Uncertainty Estimation Research
+
+#### Self-Diagnosing Neural Models
+
+A self-diagnosing neural model (Leibig et al., 2017) is one that can estimate its own uncertainty. DriftWatch's ConfidenceMonitor operationalizes this by tracking mean prediction confidence over time, monitoring entropy trends, computing confidence-margin, and detecting when uncertainty patterns change from baseline.
+
+#### Bayesian Uncertainty
+
+Bayesian neural networks (BNNs) place distributions over weights, producing predictive distributions. While DriftWatch does not implement BNNs, the confidence-drift correlation module emulates key BNN-adjacent behaviors:
+- **Epistemic uncertainty estimation**: By tracking how confidence changes under distribution shift, we approximate epistemic uncertainty.
+- **Predictive variance tracking**: The entropy and margin metrics serve as proxies for predictive variance.
+
+#### MC Dropout
+
+Monte Carlo Dropout (Gal & Ghahramani, 2016) approximates Bayesian inference by applying dropout at test time, running multiple forward passes, and computing mean and variance of predictions. DriftWatch's ConfidenceMonitor is designed to be compatible with MC Dropout outputs.
+
+#### Out-of-Distribution Detection
+
+OOD detection methods (Hendrycks & Gimpel, 2016; Liang et al., 2017) aim to identify inputs that differ from training data. DriftWatch operates at the distributional level, making it orthogonal to per-sample OOD methods. The two approaches can be combined: use OOD detectors per-sample, and use DriftWatch for population-level monitoring.
+
+#### Conformal Prediction
+
+Conformal prediction (Vovk et al., 2005) provides prediction sets with coverage guarantees. Under distribution shift, conformal prediction sets widen as uncertainty increases. DriftWatch does not implement conformal prediction, but the confidence-drift correlation module is designed to complement it.
+
+#### Calibration-Aware Monitoring
+
+Temperature scaling (Guo et al., 2017) recalibrates softmax probabilities. A calibrated model under distribution shift will typically:
+1. First become **overconfident** (high confidence, low accuracy)
+2. Then become **underconfident** (low confidence, low accuracy)
+3. Eventually show **high entropy** (uncertain predictions)
+
+DriftWatch detects this progression through its confidence history tracking.
+
+### The Confidence-Drift Correlation Hypothesis
+
+**Hypothesis H1**: Under gradual covariate shift, changes in model confidence precede changes in drift scores by k time steps.
+
+**Hypothesis H2**: The lead-lag relationship is asymmetric — confidence is more likely to lead drift than vice versa.
+
+#### Practical Implications
+
+If H1 and H2 hold in a production environment:
+1. **Confidence monitoring provides lead time** before drift scores reach alert thresholds
+2. **Alert thresholds for confidence can be set more tightly** than drift thresholds
+3. **Combined confidence-drift alerts** provide more robust early warning than either alone
+
+#### Implementation in DriftWatch
+
+The `ConfidenceDriftCorrelation` module implements:
+- **Cross-correlation**: Computing correlation at different lags to estimate lead-lag structure
+- **Early warning score**: A composite metric combining confidence degradation rate, drift acceleration, and leading indicator status
+- **Visualization**: Lead-lag plots and correlation heatmaps
+
+### Limitations and Future Work
+
+#### Current Limitations
+
+1. The confidence-drift correlation is empirical, not theoretical.
+2. Calibration dependency: works best for models that are overconfident or miscalibrated.
+3. Detection delay: requires enough observations for statistical significance.
+4. Works best with probabilistic models (softmax outputs).
+
+#### Future Research Directions
+
+1. **MC Dropout integration**: Explicit MC Dropout implementation for improved uncertainty estimates.
+2. **Conformal prediction intervals**: Integration of conformal prediction for distribution-free coverage monitoring.
+3. **Deep kernel methods**: Using learned kernels for more sensitive MMD-based drift detection.
+4. **Causal drift detection**: Identifying which features cause drift rather than merely detecting it.
+5. **Adaptive thresholding**: Automatically adjusting drift thresholds based on confidence baselines.
+
+### References
+
+- Gal, Y., & Ghahramani, Z. (2016). Dropout as a Bayesian approximation: Representing model uncertainty in deep learning. ICML.
+- Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). On calibration of modern neural networks. ICML.
+- Hendrycks, D., & Gimpel, K. (2016). A baseline for detecting misclassified and out-of-distribution examples in neural networks. ICLR.
+- Lakshminarayanan, B., Pritzel, A., & Blundell, C. (2017). Simple and scalable predictive uncertainty estimation using deep ensembles. NeurIPS.
+- Leibig, C., Allken, V., Ayhan, M. S., Berens, P., & Wahl, S. (2017). Leveraging uncertainty information from deep neural networks for disease detection. Scientific Reports.
+- Liang, S., Li, Y., & Srikant, R. (2017). Enhancing the reliability of out-of-distribution image detection in neural networks. ICLR.
+- Ovadia, Y., et al. (2019). Can you trust your model's uncertainty? Evaluating predictive uncertainty under dataset shift. NeurIPS.
+- Vovk, V., Gammerman, A., & Shafer, G. (2005). Algorithmic learning in a random world. Springer.
 
 ---
 
@@ -503,9 +645,3 @@ If you use DriftWatch in your research, please cite:
   url = {https://github.com/yourusername/driftwatch}
 }
 ```
-
----
-
-<div align="center">
-  <p>Built for production ML reliability · <a href="RESEARCH_NOTE.md">Research Note</a></p>
-</div>
