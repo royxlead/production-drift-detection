@@ -15,13 +15,13 @@
 
 ## Overview
 
-DriftWatch is a lightweight, pip-installable Python library for monitoring data drift and model confidence in production ML systems. It detects when real-world data begins diverging from the training distribution — before model performance visibly degrades.
+DriftWatch is a lightweight, pip-installable Python library for monitoring data drift and model confidence in production ML systems. It detects when real-world data begins diverging from the training distribution - before model performance visibly degrades.
 
 **The core research question driving this project:**
 
-> *Can changes in model confidence serve as earlier warning signals than drift scores or accuracy degradation — and can we measure the lead-lag relationship systematically?*
+> *Can changes in model confidence serve as earlier warning signals than drift scores or accuracy degradation - and can we measure the lead-lag relationship systematically?*
 
-Most production ML monitoring tools detect drift after it has already affected model outputs. DriftWatch introduces a **Confidence-Drift Correlation** module that tests whether confidence degradation consistently precedes drift detection — providing actionable lead time before accuracy drops.
+Most production ML monitoring tools detect drift after it has already affected model outputs. DriftWatch introduces a **Confidence-Drift Correlation** module that tests whether confidence degradation consistently precedes drift detection - providing actionable lead time before accuracy drops.
 
 ---
 
@@ -34,7 +34,7 @@ Ground truth labels arrive late in almost every production ML system:
 - Fraud detection: chargebacks take weeks to materialize
 - Recommendation systems: satisfaction is measured indirectly
 
-By the time accuracy degradation is confirmed, the model may have been producing poor predictions for thousands of inferences. **Unsupervised monitoring — detecting degradation without labels — is essential for production ML reliability.**
+By the time accuracy degradation is confirmed, the model may have been producing poor predictions for thousands of inferences. **Unsupervised monitoring - detecting degradation without labels - is essential for production ML reliability.**
 
 ---
 
@@ -46,7 +46,7 @@ By the time accuracy degradation is confirmed, the model may have been producing
 | **Unified API** | Consistent `fit/score/detect/summary` interface across all detectors |
 | **Stream Monitoring** | Batch ingestion with rolling statistics |
 | **Confidence Monitoring** | Entropy, margin, and trend analysis |
-| **Confidence-Drift Correlation** | Novel lead-lag analysis — does confidence degrade before drift? |
+| **Confidence-Drift Correlation** | Novel lead-lag analysis - does confidence degrade before drift? |
 | **Alerting System** | Severity levels: Healthy, Watch, Warning, Critical |
 | **Interactive Dashboard** | 6-page FastAPI + Chart.js visualization suite |
 | **Synthetic Drift Generator** | 8 drift types for reproducible experiments |
@@ -85,7 +85,7 @@ reference = np.random.normal(0, 1, (500, 3))
 # Production data (shifted)
 production = np.random.normal(2, 1, (500, 3))
 
-# Any detector — same API
+# Any detector - same API
 detector = MMDDetector(threshold=0.05)
 detector.fit(reference)
 result = detector.detect(production)
@@ -152,13 +152,13 @@ Production Data Stream
 
 ## Drift Detection Methods
 
-**KL Divergence** — Measures divergence between reference and current probability distributions. Best for categorical features and probability outputs. Laplace smoothing for numerical stability.
+**KL Divergence** - Measures divergence between reference and current probability distributions. Best for categorical features and probability outputs. Laplace smoothing for numerical stability.
 
-**Population Stability Index (PSI)** — Measures feature distribution stability over time using binned proportions. Standard convention: PSI < 0.1 (stable), 0.1 to 0.25 (moderate), > 0.25 (significant shift).
+**Population Stability Index (PSI)** - Measures feature distribution stability over time using binned proportions. Standard convention: PSI < 0.1 (stable), 0.1 to 0.25 (moderate), > 0.25 (significant shift).
 
-**Maximum Mean Discrepancy (MMD)** — Kernel-based two-sample test using RBF kernels. Supports multivariate distributions. Median heuristic for automatic bandwidth selection.
+**Maximum Mean Discrepancy (MMD)** - Kernel-based two-sample test using RBF kernels. Supports multivariate distributions. Median heuristic for automatic bandwidth selection.
 
-**ADWIN-Style Adaptive Windowing** — Online drift detection for streaming data. Adaptive window resizing based on Hoeffding-bound change detection. No need to store full historical data.
+**ADWIN-Style Adaptive Windowing** - Online drift detection for streaming data. Adaptive window resizing based on Hoeffding-bound change detection. No need to store full historical data.
 
 ---
 
@@ -168,7 +168,7 @@ The differentiating module. Addresses a key research hypothesis:
 
 > **H1:** Under gradual covariate shift, changes in model confidence precede changes in drift scores by k time steps.
 >
-> **H2:** The lead-lag relationship is asymmetric — confidence is more likely to lead drift than vice versa.
+> **H2:** The lead-lag relationship is asymmetric - confidence is more likely to lead drift than vice versa.
 
 **If H1 and H2 hold:**
 - Confidence monitoring provides lead time before drift scores reach alert thresholds
@@ -280,12 +280,12 @@ python demo.py --dashboard
 ```
 
 **6 pages:**
-1. Overview — current status, active alerts, recent scores
-2. Drift Monitoring — PSI, MMD, KL, ADWIN trends
-3. Feature Analysis — per-feature drift heatmap
-4. Confidence Monitoring — confidence, entropy, margin history
-5. Confidence-Drift Correlation — lead-lag plots, cross-correlation
-6. Alerts — filterable log with severity indicators
+1. Overview - current status, active alerts, recent scores
+2. Drift Monitoring - PSI, MMD, KL, ADWIN trends
+3. Feature Analysis - per-feature drift heatmap
+4. Confidence Monitoring - confidence, entropy, margin history
+5. Confidence-Drift Correlation - lead-lag plots, cross-correlation
+6. Alerts - filterable log with severity indicators
 
 ---
 
@@ -343,14 +343,14 @@ driftwatch/
 
 DriftWatch connects to an established literature on uncertainty estimation and distribution shift:
 
-- **Confidence-accuracy gap under shift** — Guo et al. (2017) showed modern networks are systematically overconfident. Under distribution shift, ECE increases before accuracy degrades.
-- **Entropy as uncertainty signal** — High entropy predictions signal OOD inputs. DriftWatch tracks entropy trends as a population-level early warning.
-- **Self-diagnosing models** — Leibig et al. (2017) demonstrated neural networks can estimate their own uncertainty. DriftWatch operationalizes this at the monitoring layer.
-- **Bayesian uncertainty** — MC Dropout (Gal & Ghahramani, 2016) approximates epistemic uncertainty. DriftWatch's ConfidenceMonitor is designed to be compatible with MC Dropout outputs.
+- **Confidence-accuracy gap under shift** - Guo et al. (2017) showed modern networks are systematically overconfident. Under distribution shift, ECE increases before accuracy degrades.
+- **Entropy as uncertainty signal** - High entropy predictions signal OOD inputs. DriftWatch tracks entropy trends as a population-level early warning.
+- **Self-diagnosing models** - Leibig et al. (2017) demonstrated neural networks can estimate their own uncertainty. DriftWatch operationalizes this at the monitoring layer.
+- **Bayesian uncertainty** - MC Dropout (Gal & Ghahramani, 2016) approximates epistemic uncertainty. DriftWatch's ConfidenceMonitor is designed to be compatible with MC Dropout outputs.
 
 **Why confidence can degrade before accuracy:**
-1. Confidence is continuous — responds to small perturbations
-2. Accuracy is discontinuous — a prediction is right or wrong
+1. Confidence is continuous - responds to small perturbations
+2. Accuracy is discontinuous - a prediction is right or wrong
 3. Models become uncertain about boundary cases before crossing into consistent error
 
 ---
@@ -372,9 +372,9 @@ DriftWatch connects to an established literature on uncertainty estimation and d
 
 ## Related Work
 
-- [Self-Diagnosing Neural Models](https://github.com/royxlead/self-diagnosing-neural-models-python) — Published research on unsupervised confidence estimation
-- [CURA](https://github.com/royxlead/cura-python) — RAG reliability and hallucination mitigation
-- [AutoLLM Forge](https://github.com/royxlead/autollmforge-python) — Efficient LLM fine-tuning
+- [Self-Diagnosing Neural Models](https://github.com/royxlead/self-diagnosing-neural-models-python) - Published research on unsupervised confidence estimation
+- [CURA](https://github.com/royxlead/cura-python) - RAG reliability and hallucination mitigation
+- [AutoLLM Forge](https://github.com/royxlead/autollmforge-python) - Efficient LLM fine-tuning
 
 ---
 
