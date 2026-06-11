@@ -1,0 +1,262 @@
+==========================================================================================
+  DriftWatch — Empirical Validation: Confidence-Drift Correlation
+==========================================================================================
+  Started:              2026-06-11 15:28:26
+  NumPy:                2.4.0
+  Random seeds:         10
+  Batches per trial:    40 (10 clean + 30 gradual drift)
+  Batch size:           100
+  Drift magnitude:      0 -> 3.0 (linear ramp)
+  Drift types:          covariate_shift, perturbation
+  Models:               LogisticRegression, PyTorch NN
+  Max cross-correlation lag: 10 batches
+
+  Hypothesis H1: Confidence degradation precedes drift detection
+  Hypothesis H2: Asymmetric lead-lag (confidence leads drift)
+==========================================================================================
+
+  Running sklearn_covariate (seed 42)...
+
+  Running sklearn_covariate (seed 49)...
+
+  Running sklearn_covariate (seed 56)...
+
+  Running sklearn_covariate (seed 63)...
+
+  Running sklearn_covariate (seed 70)...
+
+  Running sklearn_covariate (seed 77)...
+
+  Running sklearn_covariate (seed 84)...
+
+  Running sklearn_covariate (seed 91)...
+
+  Running sklearn_covariate (seed 98)...
+
+  Running sklearn_covariate (seed 105)...
+
+  Running pytorch_covariate (seed 42)...
+
+  Running pytorch_covariate (seed 49)...
+
+  Running pytorch_covariate (seed 56)...
+
+  Running pytorch_covariate (seed 63)...
+
+  Running pytorch_covariate (seed 70)...
+
+  Running pytorch_covariate (seed 77)...
+
+  Running pytorch_covariate (seed 84)...
+
+  Running pytorch_covariate (seed 91)...
+
+  Running pytorch_covariate (seed 98)...
+
+  Running pytorch_covariate (seed 105)...
+
+  Running sklearn_perturbation (seed 42)...
+
+  Running sklearn_perturbation (seed 49)...
+
+  Running sklearn_perturbation (seed 56)...
+
+  Running sklearn_perturbation (seed 63)...
+
+  Running sklearn_perturbation (seed 70)...
+
+  Running sklearn_perturbation (seed 77)...
+
+  Running sklearn_perturbation (seed 84)...
+
+  Running sklearn_perturbation (seed 91)...
+
+  Running sklearn_perturbation (seed 98)...
+
+  Running sklearn_perturbation (seed 105)...
+
+
+==========================================================================================
+  SECTION 1: HYPOTHESIS TEST — Does Confidence Lead Drift?
+==========================================================================================
+
+  ── sklearn_covariate ──
+    H1: Confidence leads drift (KL):     4/10 seeds  (40%)
+    H1: Confidence leads drift (PSI):    3/10 seeds  (30%)
+    H1: Confidence leads drift (MMD):    2/10 seeds  (20%)
+    Avg optimal lag (KL):                1.60 batches
+    Avg optimal lag (PSI):               0.80 batches
+    Avg optimal lag (MMD):               1.20 batches
+    Avg max lead correlation (KL):       0.3833
+    Avg max lead correlation (PSI):      0.5230
+    Avg max lead correlation (MMD):      0.4963
+    Avg early warning score:             42.00/100
+    Avg confidence drop:                 -2.69%
+    Avg accuracy drop:                   -1.45%
+
+  ── pytorch_covariate ──
+    H1: Confidence leads drift (KL):     3/10 seeds  (30%)
+    H1: Confidence leads drift (PSI):    3/10 seeds  (30%)
+    H1: Confidence leads drift (MMD):    3/10 seeds  (30%)
+    Avg optimal lag (KL):                1.00 batches
+    Avg optimal lag (PSI):               0.50 batches
+    Avg optimal lag (MMD):               0.70 batches
+    Avg max lead correlation (KL):       0.3771
+    Avg max lead correlation (PSI):      0.4777
+    Avg max lead correlation (MMD):      0.4739
+    Avg early warning score:             42.00/100
+    Avg confidence drop:                 -1.42%
+    Avg accuracy drop:                   6.01%
+
+  ── sklearn_perturbation ──
+    H1: Confidence leads drift (KL):     2/10 seeds  (20%)
+    H1: Confidence leads drift (PSI):    5/10 seeds  (50%)
+    H1: Confidence leads drift (MMD):    1/10 seeds  (10%)
+    Avg optimal lag (KL):                1.10 batches
+    Avg optimal lag (PSI):               2.70 batches
+    Avg optimal lag (MMD):               0.60 batches
+    Avg max lead correlation (KL):       0.7620
+    Avg max lead correlation (PSI):      0.6958
+    Avg max lead correlation (MMD):      0.7652
+    Avg early warning score:             44.00/100
+    Avg confidence drop:                 -2.35%
+    Avg accuracy drop:                   -1.45%
+
+
+==========================================================================================
+  SECTION 2: DETAILED PER-SEED RESULTS
+==========================================================================================
+
+  ── sklearn_covariate (model: LogisticRegression) ──
+  Seed     Conf Drop%   Acc Drop%    Leads(KL)  Leads(PSI) Leads(MMD) Lag(KL)  Lag(PSI) Lag(MMD) EWS   
+  ----------------------------------------------------------------------------------------------------
+  42       -0.48        0.14         No         Yes        No         0        3        0        50    
+  49       -6.09        -5.78        No         No         No         0        0        0        30    
+  56       3.63         7.10         No         No         Yes        0        0        6        30    
+  63       -3.72        -2.82        Yes        No         No         3        0        0        50    
+  70       -6.70        -6.93        Yes        No         No         3        0        0        50    
+  77       -1.27        0.58         No         No         No         0        0        0        30    
+  84       -2.61        -2.07        No         No         No         0        0        0        30    
+  91       -4.51        -2.47        No         Yes        No         0        2        0        50    
+  98       -4.04        -2.47        Yes        No         Yes        4        0        6        50    
+  105      -1.16        0.21         Yes        Yes        No         6        3        0        50    
+
+  ── pytorch_covariate (model: PyTorch NN) ──
+  Seed     Conf Drop%   Acc Drop%    Leads(KL)  Leads(PSI) Leads(MMD) Lag(KL)  Lag(PSI) Lag(MMD) EWS   
+  ----------------------------------------------------------------------------------------------------
+  42       -0.47        3.19         No         No         No         0        0        0        30    
+  49       -2.51        0.28         No         No         No         0        0        0        30    
+  56       1.05         8.61         No         No         Yes        0        0        4        50    
+  63       -1.02        0.88         Yes        No         No         3        0        0        50    
+  70       -4.86        15.95        Yes        Yes        No         3        1        0        50    
+  77       -0.15        5.01         No         No         No         0        0        0        30    
+  84       -0.97        6.39         No         Yes        Yes        0        1        2        50    
+  91       -2.62        9.53         No         No         No         0        0        0        30    
+  98       -2.21        5.76         Yes        No         No         4        0        0        50    
+  105      -0.45        4.51         No         Yes        Yes        0        3        1        50    
+
+  ── sklearn_perturbation (model: LogisticRegression + Perturbation) ──
+  Seed     Conf Drop%   Acc Drop%    Leads(KL)  Leads(PSI) Leads(MMD) Lag(KL)  Lag(PSI) Lag(MMD) EWS   
+  ----------------------------------------------------------------------------------------------------
+  42       -0.13        0.34         No         No         No         0        0        0        30    
+  49       -3.58        -3.49        No         No         No         0        0        0        50    
+  56       0.65         2.09         Yes        Yes        Yes        6        8        6        50    
+  63       -3.52        -2.43        No         No         No         0        0        0        50    
+  70       -5.57        -6.37        No         Yes        No         0        5        0        50    
+  77       -1.01        0.75         No         No         No         0        0        0        30    
+  84       -2.07        -2.25        No         No         No         0        0        0        30    
+  91       -3.61        -1.11        No         Yes        No         0        6        0        50    
+  98       -3.39        -2.51        Yes        Yes        No         5        5        0        50    
+  105      -1.31        0.45         No         Yes        No         0        3        0        50    
+
+
+==========================================================================================
+  SECTION 3: HYPOTHESIS CONCLUSION
+==========================================================================================
+
+  ── sklearn_covariate (LogisticRegression) ──
+    Model:           LogisticRegression
+    Train accuracy:  97.25%
+    Total batches:   40 (10 clean + 30 drifted)
+    Confidence drop: -2.69% across drift phase
+    H1 support:      Confidence leads drift in
+                     4/10 trials (KL), 3/10 trials (PSI), 2/10 trials (MMD)
+    Avg EWS:         42.00/100
+    Conclusion:      30% of detector-seed pairs show confidence leading drift. DOES NOT SUPPORT H1 - Confidence does not reliably lead drift.
+
+  ── pytorch_covariate (PyTorch NN) ──
+    Model:           PyTorch NN
+    Train accuracy:  99.25%
+    Total batches:   40 (10 clean + 30 drifted)
+    Confidence drop: -1.42% across drift phase
+    H1 support:      Confidence leads drift in
+                     3/10 trials (KL), 3/10 trials (PSI), 3/10 trials (MMD)
+    Avg EWS:         42.00/100
+    Conclusion:      30% of detector-seed pairs show confidence leading drift. DOES NOT SUPPORT H1 - Confidence does not reliably lead drift.
+
+  ── sklearn_perturbation (LogisticRegression + Perturbation) ──
+    Model:           LogisticRegression + Perturbation
+    Train accuracy:  97.25%
+    Total batches:   40 (10 clean + 30 drifted)
+    Confidence drop: -2.35% across drift phase
+    H1 support:      Confidence leads drift in
+                     2/10 trials (KL), 5/10 trials (PSI), 1/10 trials (MMD)
+    Avg EWS:         44.00/100
+    Conclusion:      27% of detector-seed pairs show confidence leading drift. DOES NOT SUPPORT H1 - Confidence does not reliably lead drift.
+
+
+==========================================================================================
+  SECTION 4: SAMPLE TIME SERIES (seed=42, sklearn covariate)
+==========================================================================================
+
+  Batch    Magnitude    Confidence   Accuracy     Drift(KL)    Drift(PSI)   Drift(MMD)  
+  --------------------------------------------------------------------
+  0        0.00         0.9685       0.9600       0.0157       0.0967       0.0020      
+  1        0.00         0.9693       0.9800       0.0254       0.1281       0.0014      
+  2        0.00         0.9525       0.9400       0.0203       0.0958       0.0003      
+  3        0.00         0.9468       0.9300       0.0286       0.0939       0.0039      
+  4        0.00         0.9727       1.0000       0.0161       0.1100       0.0008      
+  5        0.00         0.9732       0.9800       0.0105       0.0820       0.0017      
+  6        0.00         0.9628       0.9900       0.0224       0.1121       0.0023      
+  7        0.00         0.9590       0.9800       0.0173       0.0861       0.0026      
+  8        0.00         0.9666       0.9800       0.0278       0.1247       0.0018      
+  9        0.00         0.9563       0.9800       0.0196       0.0805       0.0020      
+  10       0.00         0.9286       0.9200       0.2360       5.2274       0.2037      
+  11       0.10         0.9487       0.9400       0.0295       4.8416       0.1251      
+  12       0.20         0.9950       1.0000       0.1263       9.7822       0.2481      
+  13       0.30         0.9402       0.9600       0.0775       1.1090       0.0781      
+  14       0.40         0.8973       0.9100       0.1448       5.8167       0.1444      
+  15       0.50         0.8968       0.8700       0.5099       10.4327      0.2766      
+  16       0.60         0.9843       0.9900       0.1398       2.9534       0.1377      
+  17       0.70         0.9266       0.9600       0.0319       0.6745       0.0660      
+  18       0.80         0.9535       0.9700       0.2306       4.4437       0.1583      
+  19       0.90         0.9642       0.9600       0.2779       9.3367       0.2978      
+  20       1.00         0.9619       0.9800       1.8205       6.8177       0.2390      
+  21       1.10         0.9626       0.9600       0.2308       4.0663       0.3085      
+  22       1.20         0.9402       0.9600       0.1370       3.1971       0.1686      
+  23       1.30         0.9760       0.9600       0.2021       10.2961      0.2608      
+  24       1.40         0.9315       0.9200       0.1456       8.8739       0.2430      
+  25       1.50         0.9438       0.9500       0.3793       7.1446       0.4422      
+  26       1.60         0.9787       1.0000       7.2955       12.2304      0.3821      
+  27       1.70         0.9999       1.0000       0.4179       6.5963       0.2027      
+  28       1.80         0.9923       0.9800       0.5394       5.8672       0.2261      
+  29       1.90         0.9711       0.9700       0.6285       14.2803      0.4596      
+  30       2.00         1.0000       1.0000       0.6090       11.6422      0.3114      
+  31       2.10         0.9999       1.0000       0.5370       11.2637      0.4373      
+  32       2.20         0.9990       1.0000       0.6703       17.5646      0.4354      
+  33       2.30         0.9968       1.0000       0.3306       6.5905       0.2808      
+  34       2.40         1.0000       1.0000       0.9321       16.6144      0.5618      
+  35       2.50         0.9999       1.0000       1.0610       14.7416      0.4584      
+  36       2.60         0.9942       0.9900       3.7137       14.2478      0.4760      
+  37       2.70         0.9608       0.9800       0.9434       13.7337      0.4181      
+  38       2.80         0.9788       0.9900       0.8653       17.2399      0.4992      
+  39       2.90         1.0000       1.0000       1.4547       8.7283       0.4284      
+
+
+==========================================================================================
+  Total validation time: 13.6 seconds
+  Completed:             2026-06-11 15:28:40
+  Experiments:           3 (sklearn covariate, pytorch covariate, sklearn perturbation)
+  Seeds per experiment:  10
+  Total trials:          30
+==========================================================================================

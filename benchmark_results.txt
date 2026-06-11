@@ -1,0 +1,183 @@
+================================================================================
+  DriftWatch — Detection Latency, FPR & Sensitivity Benchmark
+================================================================================
+  Started:       2026-06-11 14:56:04
+  NumPy:         2.4.0
+  Pandas:        3.0.1
+  Detectors:     KLDivergence, PSI, MMD, ADWIN
+  Features:      5
+  Reference:     1000 samples
+  Batch size:    100
+  Clean batches: 5  |  Drifted batches: 10
+================================================================================
+
+================================================================================
+  1. DETECTION LATENCY & FALSE POSITIVE RATE
+================================================================================
+
+  ── Drift magnitude: 0.5 ──
+  Detector       Threshold  FPR          Latency (batches)  Detected?    Detection Rate   Stability   
+  ----------------------------------------------------------------------------------------------
+  KLDivergence   0.1000     0.0000       0                  Yes          0.70             0.5705      
+  PSI            0.1000     0.6000       0                  Yes          1.00             0.5015      
+  MMD            0.0500     0.0000       0                  Yes          0.90             0.5302      
+  ADWIN          0.1000     0.8000       0                  Yes          1.00             0.5553      
+
+  ── Drift magnitude: 1.0 ──
+  Detector       Threshold  FPR          Latency (batches)  Detected?    Detection Rate   Stability   
+  ----------------------------------------------------------------------------------------------
+  KLDivergence   0.1000     0.0000       0                  Yes          0.70             0.5411      
+  PSI            0.1000     0.4000       0                  Yes          1.00             0.5070      
+  MMD            0.0500     0.0000       0                  Yes          0.90             0.5257      
+  ADWIN          0.1000     0.6000       0                  Yes          1.00             0.5339      
+
+  ── Drift magnitude: 2.0 ──
+  Detector       Threshold  FPR          Latency (batches)  Detected?    Detection Rate   Stability   
+  ----------------------------------------------------------------------------------------------
+  KLDivergence   0.1000     0.0000       0                  Yes          0.90             0.4610      
+  PSI            0.1000     0.8000       0                  Yes          1.00             0.5181      
+  MMD            0.0500     0.0000       0                  Yes          1.00             0.5263      
+  ADWIN          0.1000     0.0000       0                  Yes          1.00             0.4896      
+
+  ── Drift magnitude: 3.0 ──
+  Detector       Threshold  FPR          Latency (batches)  Detected?    Detection Rate   Stability   
+  ----------------------------------------------------------------------------------------------
+  KLDivergence   0.1000     0.0000       0                  Yes          1.00             0.2815      
+  PSI            0.1000     0.2000       0                  Yes          1.00             0.5263      
+  MMD            0.0500     0.0000       0                  Yes          1.00             0.5341      
+  ADWIN          0.1000     0.0000       0                  Yes          0.90             0.4633      
+
+================================================================================
+  2. SENSITIVITY TO DRIFT MAGNITUDE
+================================================================================
+
+  Mean Drift Score by Magnitude:
+
+  Magnitude   ADWIN           KLDivergence    MMD             PSI             
+  ------------ ----------------------------------------------------------------
+  0.00        1.132144        0.218340        0.159581        4.134425        
+  0.25        0.891171        0.174422        0.176486        6.511129        
+  0.50        0.877479        0.204032        0.250792        6.972262        
+  0.75        1.650827        0.137019        0.253084        5.580395        
+  1.00        1.420176        0.186781        0.341138        7.724585        
+  1.50        0.806316        0.346182        0.315812        9.047623        
+  2.00        1.522912        0.650562        0.400341        8.414617        
+  3.00        2.465310        3.666612        0.467599        13.070863       
+  5.00        3.185875        13.282893       0.440011        13.352840       
+
+  Score Ratio (max magnitude / baseline):
+    ADWIN         : 2.81x
+    KLDivergence  : 60.84x
+    MMD           : 2.76x
+    PSI           : 3.23x
+
+  Sensitivity (score increase per unit magnitude):
+    ADWIN         : 0.452002
+    KLDivergence  : 2.473136
+    MMD           : 0.059695
+    PSI           : 1.820008
+
+================================================================================
+  3. COMPREHENSIVE DETECTOR EVALUATION (magnitude=2.0)
+================================================================================
+
+  ── KLDivergence ──
+    Threshold:                       0.1000
+    FPR (before drift):              0.0000%  (0/5 pre-drift batches)
+    Detection latency (batches):     0
+    Detection latency (samples):     0
+    Drift detected:                  True
+    Detection rate:                  90.00%
+    Stability:                       0.4708
+    Score mean / std:                0.215413 / 0.242117
+    Autocorrelation:                 0.5115
+    Coefficient of variation:        1.1240
+
+  ── PSI ──
+    Threshold:                       0.1000
+    FPR (before drift):              40.0000%  (2/5 pre-drift batches)
+    Detection latency (batches):     0
+    Detection latency (samples):     0
+    Drift detected:                  True
+    Detection rate:                  100.00%
+    Stability:                       0.5180
+    Score mean / std:                4.908128 / 4.566398
+    Autocorrelation:                 0.4906
+    Coefficient of variation:        0.9304
+
+  ── MMD ──
+    Threshold:                       0.0500
+    FPR (before drift):              0.0000%  (0/5 pre-drift batches)
+    Detection latency (batches):     0
+    Detection latency (samples):     0
+    Drift detected:                  True
+    Detection rate:                  100.00%
+    Stability:                       0.5263
+    Score mean / std:                0.159370 / 0.143439
+    Autocorrelation:                 0.6937
+    Coefficient of variation:        0.9000
+
+  ── ADWIN ──
+    Threshold:                       0.1000
+    FPR (before drift):              60.0000%  (3/5 pre-drift batches)
+    Detection latency (batches):     0
+    Detection latency (samples):     0
+    Drift detected:                  True
+    Detection rate:                  100.00%
+    Stability:                       0.5133
+    Score mean / std:                0.597230 / 0.566180
+    Autocorrelation:                 0.4813
+    Coefficient of variation:        0.9480
+
+================================================================================
+  4. CROSS-DRIFT-TYPE COMPARISON (magnitude=2.0)
+================================================================================
+
+  ── Drift type: covariate ──
+  Detector       FPR          Latency (batches)  Detected?    Stability    Det Rate    
+  --------------------------------------------------------------------------------
+  KLDivergence   0.0000       0                  Yes          0.4688       0.90        
+  PSI            0.6000       0                  Yes          0.5181       1.00        
+  MMD            0.0000       0                  Yes          0.5267       1.00        
+  ADWIN          0.8000       0                  Yes          0.5106       1.00        
+
+  ── Drift type: perturbation ──
+  Detector       FPR          Latency (batches)  Detected?    Stability    Det Rate    
+  --------------------------------------------------------------------------------
+  KLDivergence   0.0000       N/A                No           0.7061       0.00        
+  PSI            0.6000       0.000000           Yes          0.8227       0.60        
+  MMD            0.0000       N/A                No           0.4185       0.00        
+  ADWIN          0.8000       0.000000           Yes          0.5859       0.30        
+
+================================================================================
+  5. ADWIN STREAMING DETECTION (Gradual Drift)
+================================================================================
+
+    Mean ADWIN score:           2.6412
+    Max ADWIN score:            5.7779
+    Drift detected in:          19/20 batches
+    Detection latency:          0 batches
+    FPR (pre-drift):            80.0000%
+
+================================================================================
+  6. CONFIDENCE EARLY WARNING EFFECTIVENESS
+================================================================================
+
+    Early warning score:       64.27/100
+    Early warnings detected:   3
+    Confidence leads drift:    True
+
+================================================================================
+  BENCHMARK SUMMARY
+================================================================================
+
+  Detector       FPR (mag=1.0)    FPR (mag=2.0)    Latency (mag=1.0)  Latency (mag=2.0)  Sensitivity   
+  ------------------------------------------------------------------------------------------------
+  KLDivergence   0.0000           0.0000           0                  0                  2.473136      
+  PSI            0.4000           0.4000           0                  0                  1.820008      
+  MMD            0.0000           0.0000           0                  0                  0.059695      
+  ADWIN          0.4000           0.2000           0                  0                  0.452002      
+
+  Total benchmark time: 0.49 seconds
+  Benchmark completed:  2026-06-11 14:56:05
+================================================================================
