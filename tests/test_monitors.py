@@ -3,10 +3,10 @@
 import numpy as np
 import pytest
 
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.psi import PSIDetector
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
-from driftwatch.monitors.stream_monitor import StreamMonitor
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.psi import PSIDetector
+from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
+from production_drift_detection.monitors.stream_monitor import StreamMonitor
 
 
 class TestStreamMonitor:

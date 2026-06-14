@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from driftwatch.data.synthetic_drift import DriftGenerator
+from production_drift_detection.data.synthetic_drift import DriftGenerator
 
 
 class TestDriftGenerator:
@@ -85,7 +85,7 @@ class TestDriftGenerator:
         for col in range(3):
             ref[:, col] = rng.normal(rng.uniform(-1, 1), rng.uniform(0.5, 1.0), 500)
 
-        from driftwatch.detectors.psi import PSIDetector
+        from production_drift_detection.detectors.psi import PSIDetector
 
         detector = PSIDetector(threshold=0.1, n_bins=5)
         detector.fit(ref)
@@ -104,7 +104,7 @@ class TestDataLoader:
     """Tests for the DataLoader."""
 
     def test_load_synthetic(self):
-        from driftwatch.data.loaders import DataLoader
+        from production_drift_detection.data.loaders import DataLoader
         loader = DataLoader(random_state=42)
         data = loader.load_synthetic_classification(n_samples=500, n_features=5)
         assert "X_train" in data
@@ -113,7 +113,7 @@ class TestDataLoader:
         assert "feature_names" in data
 
     def test_stream_batches_no_drift(self):
-        from driftwatch.data.loaders import DataLoader
+        from production_drift_detection.data.loaders import DataLoader
         loader = DataLoader(random_state=42)
         data = loader.load_synthetic_classification(n_samples=500, n_features=5)
         batches = loader.generate_stream_batches(
@@ -122,7 +122,7 @@ class TestDataLoader:
         assert len(batches) == 5
 
     def test_stream_batches_with_drift(self):
-        from driftwatch.data.loaders import DataLoader
+        from production_drift_detection.data.loaders import DataLoader
         loader = DataLoader(random_state=42)
         data = loader.load_synthetic_classification(n_samples=500, n_features=5)
         batches = loader.generate_stream_batches(
@@ -138,7 +138,7 @@ class TestDataLoader:
         assert len(batches) == 10
 
     def test_image_drift_demo(self):
-        from driftwatch.data.loaders import DataLoader
+        from production_drift_detection.data.loaders import DataLoader
         loader = DataLoader(random_state=42)
         result = loader.generate_image_drift_demo(
             image_size=8, n_reference=50, n_batches=5, batch_size=10

@@ -1,1 +1,1 @@
-"""Test suite for DriftWatch."""
+"""Test suite for ProductionDriftDetection."""

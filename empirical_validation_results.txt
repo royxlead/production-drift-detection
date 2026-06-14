@@ -1,5 +1,5 @@
 ==========================================================================================
-  DriftWatch — Empirical Validation: Confidence-Drift Correlation
+  Production Drift Detection — Empirical Validation: Confidence-Drift Correlation
 ==========================================================================================
   Started:              2026-06-11 15:28:26
   NumPy:                2.4.0

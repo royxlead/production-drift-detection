@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DriftWatch — Empirical Validation: Confidence-Drift Correlation
+ProductionDriftDetection — Empirical Validation: Confidence-Drift Correlation
 
 This script empirically tests the core research hypothesis:
 
@@ -32,12 +32,12 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.psi import PSIDetector
-from driftwatch.detectors.mmd import MMDDetector
-from driftwatch.data.synthetic_drift import DriftGenerator
-from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.psi import PSIDetector
+from production_drift_detection.detectors.mmd import MMDDetector
+from production_drift_detection.data.synthetic_drift import DriftGenerator
+from production_drift_detection.correlation.confidence_drift import ConfidenceDriftCorrelation
+from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
 
 
 # ── Detectors for feature drift ──────────────────────────────────
@@ -599,7 +599,7 @@ def run_empirical_validation(output_path: str):
         lines.append(s)
 
     w("=" * 90)
-    w("  DriftWatch — Empirical Validation: Confidence-Drift Correlation")
+    w("  ProductionDriftDetection — Empirical Validation: Confidence-Drift Correlation")
     w("=" * 90)
     w(f"  Started:              {time.strftime('%Y-%m-%d %H:%M:%S')}")
     w(f"  NumPy:                {np.__version__}")

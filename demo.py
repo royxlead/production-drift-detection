@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DriftWatch — Complete End-to-End Demo
+ProductionDriftDetection — Complete End-to-End Demo
 
 This demo:
 1. Generates reference and production data with controlled drift
@@ -25,28 +25,28 @@ from pathlib import Path
 
 import numpy as np
 
-from driftwatch.alerts.schemas import Severity
-from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
-from driftwatch.data.synthetic_drift import DriftGenerator
-from driftwatch.detectors.adwin import ADWINDetector
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.mmd import MMDDetector
-from driftwatch.detectors.psi import PSIDetector
-from driftwatch.evaluation.metrics import evaluate_detector
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
-from driftwatch.monitors.stream_monitor import StreamMonitor
+from production_drift_detection.alerts.schemas import Severity
+from production_drift_detection.correlation.confidence_drift import ConfidenceDriftCorrelation
+from production_drift_detection.data.synthetic_drift import DriftGenerator
+from production_drift_detection.detectors.adwin import ADWINDetector
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.mmd import MMDDetector
+from production_drift_detection.detectors.psi import PSIDetector
+from production_drift_detection.evaluation.metrics import evaluate_detector
+from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
+from production_drift_detection.monitors.stream_monitor import StreamMonitor
 
 
 def print_header():
     print("=" * 70)
-    print("  DriftWatch — Real-time Data Drift Detection")
+    print("  ProductionDriftDetection — Real-time Data Drift Detection")
     print("  End-to-End Demonstration")
     print("=" * 70)
     print()
 
 
 def run_demo(quick: bool = False) -> dict:
-    """Run the complete DriftWatch demo.
+    """Run the complete ProductionDriftDetection demo.
 
     Parameters
     ----------
@@ -219,7 +219,7 @@ def run_demo(quick: bool = False) -> dict:
         drift_data.append(reference_data[:batch_size])
 
     if clean_data and drift_data:
-        from driftwatch.evaluation.metrics import evaluate_detector
+        from production_drift_detection.evaluation.metrics import evaluate_detector
 
         for det_name, detector in detectors.items():
             try:
@@ -238,7 +238,7 @@ def run_demo(quick: bool = False) -> dict:
 
     print()
     print("=" * 70)
-    print("  Demo complete! DriftWatch successfully monitored")
+    print("  Demo complete! ProductionDriftDetection successfully monitored")
     print("  data drift, confidence degradation, and generated")
     print("  early warning signals.")
     print("=" * 70)
@@ -255,17 +255,17 @@ def run_demo(quick: bool = False) -> dict:
 
 def launch_dashboard():
     """Launch the FastAPI dashboard."""
-    print("Launching DriftWatch dashboard...")
+    print("Launching ProductionDriftDetection dashboard...")
     print("Navigate to http://localhost:8501 in your browser.")
     print("Press Ctrl+C to stop.")
     print()
-    from driftwatch.dashboard.server import serve
+    from production_drift_detection.dashboard.server import serve
     serve()
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="DriftWatch — Real-time Data Drift Detection Demo"
+        description="ProductionDriftDetection — Real-time Data Drift Detection Demo"
     )
     parser.add_argument(
         "--dashboard", "-d",

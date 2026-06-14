@@ -1,4 +1,4 @@
-# DriftWatch
+# Production Drift Detection
 ### Real-Time Data Drift Detection for Production ML Systems
 
 <p align="left">
@@ -51,7 +51,7 @@ By the time accuracy degradation is confirmed, the model may have been producing
 
 ## What This Does
 
-DriftWatch provides:
+Production Drift Detection provides:
 
 1. **Four drift detectors** (KL Divergence, PSI, MMD, ADWIN) with a unified `fit/score/detect/summary` API
 2. **Stream monitoring** with batch ingestion and rolling statistics
@@ -130,7 +130,7 @@ This is an honest empirical result. The confidence-drift lead-lag relationship i
 Cross-correlation analysis does show meaningful **co-movement** between confidence and drift signals (max correlations 0.38-0.77 across detectors), confirming that confidence tracks drift even when it does not reliably precede it.
 
 ```python
-from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
+from production-drift-detection.correlation.confidence_drift import ConfidenceDriftCorrelation
 
 correlator = ConfidenceDriftCorrelation(max_lag=10)
 result = correlator.analyze(confidence_history, drift_history)
@@ -200,7 +200,7 @@ Production Data Stream
 ## Repository Structure
 
 ```
-driftwatch-python/
+production-drift-detection/
 |
 +-- src/                         # Core library source
 |   +-- detectors/               # KL, PSI, MMD, ADWIN
@@ -229,8 +229,8 @@ driftwatch-python/
 
 ```bash
 # From source
-git clone https://github.com/royxlead/driftwatch-python.git
-cd driftwatch-python
+git clone https://github.com/royxlead/production-drift-detection.git
+cd production-drift-detection
 pip install -e .
 
 # With optional dependencies
@@ -248,9 +248,9 @@ pip install -e ".[all]"            # Everything
 
 ```python
 import numpy as np
-from driftwatch.detectors.mmd import MMDDetector      # Recommended
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.psi import PSIDetector
+from production-drift-detection.detectors.mmd import MMDDetector      # Recommended
+from production-drift-detection.detectors.kl import KLDivergenceDetector
+from production-drift-detection.detectors.psi import PSIDetector
 
 # Reference distribution (training data)
 reference = np.random.normal(0, 1, (2000, 5))
@@ -269,7 +269,7 @@ print(f"Score: {result['score']:.4f}")
 **Stream monitoring:**
 
 ```python
-from driftwatch.monitors.stream_monitor import StreamMonitor
+from production-drift-detection.monitors.stream_monitor import StreamMonitor
 
 monitor = StreamMonitor()
 monitor.fit(reference)
@@ -285,7 +285,7 @@ for batch_idx in range(10):
 ## Confidence Monitoring
 
 ```python
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
+from production-drift-detection.monitors.confidence_monitor import ConfidenceMonitor
 
 monitor = ConfidenceMonitor()
 
@@ -305,7 +305,7 @@ for batch_predictions in prediction_stream:
 **Scikit-learn:**
 
 ```python
-from driftwatch.integrations.sklearn_adapter import SklearnAdapter
+from production-drift-detection.integrations.sklearn_adapter import SklearnAdapter
 
 adapter = SklearnAdapter(sklearn_model)
 result = adapter.predict(X_test, y_test)
@@ -316,7 +316,7 @@ print(f"Confidence: {result['confidence']['mean_confidence']:.3f}")
 **PyTorch:**
 
 ```python
-from driftwatch.integrations.pytorch_adapter import PyTorchAdapter
+from production-drift-detection.integrations.pytorch_adapter import PyTorchAdapter
 
 adapter = PyTorchAdapter(torch_model)
 result = adapter.predict(X_tensor)
@@ -325,7 +325,7 @@ result = adapter.predict(X_tensor)
 **HuggingFace:**
 
 ```python
-from driftwatch.integrations.hf_adapter import HFAdapter
+from production-drift-detection.integrations.hf_adapter import HFAdapter
 
 adapter = HFAdapter()   # DistilBERT SST-2 by default
 result = adapter.predict_text(["Great product!", "Terrible experience."])
@@ -349,7 +349,7 @@ result = adapter.predict_text(["Great product!", "Terrible experience."])
 | Feature Corruption | Set features to constant values |
 
 ```python
-from driftwatch.data.synthetic_drift import DriftGenerator
+from production-drift-detection.data.synthetic_drift import DriftGenerator
 
 generator = DriftGenerator(n_features=5, random_state=42)
 reference = generator.generate_reference(n_samples=2000)
@@ -361,7 +361,7 @@ shifted = generator.gradual_drift(n_samples=500, drift_magnitude=2.0)
 ## Dashboard
 
 ```bash
-python -m driftwatch.dashboard.server
+python -m production-drift-detection.dashboard.server
 # or
 python demo.py --dashboard
 ```
@@ -393,9 +393,9 @@ python empirical_validation.py
 Run standard benchmarks programmatically:
 
 ```python
-from driftwatch.evaluation.benchmarks import BenchmarkFramework
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.mmd import MMDDetector
+from production-drift-detection.evaluation.benchmarks import BenchmarkFramework
+from production-drift-detection.detectors.kl import KLDivergenceDetector
+from production-drift-detection.detectors.mmd import MMDDetector
 
 framework = BenchmarkFramework(detectors=[
     KLDivergenceDetector(),
@@ -412,7 +412,7 @@ sensitivity = framework.run_sensitivity_analysis(
 
 ```bash
 pytest                            # All tests
-pytest --cov=driftwatch           # With coverage
+pytest --cov=production-drift-detection           # With coverage
 pytest tests/test_detectors.py   # Specific module
 pytest -m "integration"          # Integration tests only
 ```
@@ -421,12 +421,12 @@ pytest -m "integration"          # Integration tests only
 
 ## Research Background
 
-DriftWatch connects to established literature on distribution shift and uncertainty estimation:
+Production Drift Detection connects to established literature on distribution shift and uncertainty estimation:
 
 - **Confidence-accuracy gap under shift** - Guo et al. (2017) showed modern networks are systematically overconfident. Under distribution shift, ECE increases before accuracy degrades.
-- **Entropy as uncertainty signal** - High entropy predictions signal OOD inputs. DriftWatch tracks entropy trends as a population-level monitoring signal.
-- **Self-diagnosing models** - Leibig et al. (2017) demonstrated neural networks can estimate their own uncertainty. DriftWatch operationalizes this at the monitoring layer.
-- **Bayesian uncertainty** - MC Dropout (Gal and Ghahramani, 2016) approximates epistemic uncertainty. DriftWatch's ConfidenceMonitor is designed to be compatible with MC Dropout outputs.
+- **Entropy as uncertainty signal** - High entropy predictions signal OOD inputs. Production Drift Detection tracks entropy trends as a population-level monitoring signal.
+- **Self-diagnosing models** - Leibig et al. (2017) demonstrated neural networks can estimate their own uncertainty. Production Drift Detection operationalizes this at the monitoring layer.
+- **Bayesian uncertainty** - MC Dropout (Gal and Ghahramani, 2016) approximates epistemic uncertainty. Production Drift Detection's ConfidenceMonitor is designed to be compatible with MC Dropout outputs.
 
 **Why confidence tracks drift even without leading it:**
 Confidence is continuous - it responds to small perturbations. Accuracy is discontinuous - a prediction is right or wrong. Both signals are informative; their relationship is model-dependent and drift-type-dependent rather than universally ordered.
@@ -459,11 +459,11 @@ Confidence is continuous - it responds to small perturbations. Accuracy is disco
 ## Citation
 
 ```bibtex
-@software{roy2026driftwatch,
+@software{roy2026production-drift-detection,
   author = {Roy, Sourav},
-  title  = {DriftWatch: Real-Time Data Drift Detection for Production ML Systems},
+  title  = {Production Drift Detection: Real-Time Data Drift Detection for Production ML Systems},
   year   = {2026},
-  url    = {https://github.com/royxlead/driftwatch-python}
+  url    = {https://github.com/royxlead/production-drift-detection}
 }
 ```
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DriftWatch — Comprehensive Benchmark Suite
+ProductionDriftDetection — Comprehensive Benchmark Suite
 
 Compares all detectors (KL, PSI, MMD, ADWIN) across:
   - Detection latency
@@ -21,21 +21,21 @@ import pandas as pd
 # Ensure package is importable
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.psi import PSIDetector
-from driftwatch.detectors.mmd import MMDDetector
-from driftwatch.detectors.adwin import ADWINDetector
-from driftwatch.data.synthetic_drift import DriftGenerator
-from driftwatch.evaluation.metrics import (
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.psi import PSIDetector
+from production_drift_detection.detectors.mmd import MMDDetector
+from production_drift_detection.detectors.adwin import ADWINDetector
+from production_drift_detection.data.synthetic_drift import DriftGenerator
+from production_drift_detection.evaluation.metrics import (
     compute_detection_latency,
     compute_false_positive_rate,
     compute_detection_stability,
     compute_sensitivity_to_drift,
     evaluate_detector,
 )
-from driftwatch.evaluation.benchmarks import BenchmarkFramework
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
-from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
+from production_drift_detection.evaluation.benchmarks import BenchmarkFramework
+from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
+from production_drift_detection.correlation.confidence_drift import ConfidenceDriftCorrelation
 
 
 def print_separator(title: str):
@@ -308,7 +308,7 @@ def print_footer(benchmark_results: dict):
 def main():
     print()
     print("=" * 72)
-    print("  DriftWatch — Comprehensive Detector Benchmark Suite")
+    print("  ProductionDriftDetection — Comprehensive Detector Benchmark Suite")
     print("=" * 72)
     print(f"  Started: {time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"  NumPy: {np.__version__}, Pandas: {pd.__version__}")

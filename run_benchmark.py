@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-DriftWatch — Focused Benchmark: Detection Latency, FPR & Sensitivity
+ProductionDriftDetection — Focused Benchmark: Detection Latency, FPR & Sensitivity
 
 Runs all detectors (KL, PSI, MMD, ADWIN) across multiple drift scenarios
 and saves the results to a timestamped .txt file.
@@ -15,19 +15,19 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.psi import PSIDetector
-from driftwatch.detectors.mmd import MMDDetector
-from driftwatch.detectors.adwin import ADWINDetector
-from driftwatch.data.synthetic_drift import DriftGenerator
-from driftwatch.evaluation.metrics import (
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.psi import PSIDetector
+from production_drift_detection.detectors.mmd import MMDDetector
+from production_drift_detection.detectors.adwin import ADWINDetector
+from production_drift_detection.data.synthetic_drift import DriftGenerator
+from production_drift_detection.evaluation.metrics import (
     compute_detection_latency,
     compute_false_positive_rate,
     compute_detection_stability,
     compute_sensitivity_to_drift,
     evaluate_detector,
 )
-from driftwatch.evaluation.benchmarks import BenchmarkFramework
+from production_drift_detection.evaluation.benchmarks import BenchmarkFramework
 
 
 def fmt(val, decimals=6):
@@ -61,7 +61,7 @@ def run_latency_fpr_benchmark(output_path: str):
         lines.append(s)
 
     w("=" * 80)
-    w("  DriftWatch — Detection Latency, FPR & Sensitivity Benchmark")
+    w("  ProductionDriftDetection — Detection Latency, FPR & Sensitivity Benchmark")
     w("=" * 80)
     w(f"  Started:       {time.strftime('%Y-%m-%d %H:%M:%S')}")
     w(f"  NumPy:         {np.__version__}")
@@ -230,8 +230,8 @@ def run_latency_fpr_benchmark(output_path: str):
     w("  6. CONFIDENCE EARLY WARNING EFFECTIVENESS")
     w("=" * 80)
 
-    from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
-    from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
+    from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
+    from production_drift_detection.correlation.confidence_drift import ConfidenceDriftCorrelation
 
     cm = ConfidenceMonitor()
     corr = ConfidenceDriftCorrelation(max_lag=5)

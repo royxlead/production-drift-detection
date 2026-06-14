@@ -3,9 +3,9 @@
 import numpy as np
 import pytest
 
-from driftwatch.dashboard.visuals import Visualizer
-from driftwatch.data.synthetic_drift import DriftGenerator
-from driftwatch.monitors.confidence_monitor import ConfidenceMonitor
+from production_drift_detection.dashboard.visuals import Visualizer
+from production_drift_detection.data.synthetic_drift import DriftGenerator
+from production_drift_detection.monitors.confidence_monitor import ConfidenceMonitor
 
 
 class TestVisualizer:
@@ -56,8 +56,8 @@ class TestVisualizer:
         viz = Visualizer()
         gen = DriftGenerator(n_features=3, random_state=42)
 
-        from driftwatch.detectors.kl import KLDivergenceDetector
-        from driftwatch.detectors.psi import PSIDetector
+        from production_drift_detection.detectors.kl import KLDivergenceDetector
+        from production_drift_detection.detectors.psi import PSIDetector
 
         kl_det = KLDivergenceDetector()
         psi_det = PSIDetector()

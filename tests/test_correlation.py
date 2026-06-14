@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from driftwatch.correlation.confidence_drift import ConfidenceDriftCorrelation
+from production_drift_detection.correlation.confidence_drift import ConfidenceDriftCorrelation
 
 
 class TestConfidenceDriftCorrelation:

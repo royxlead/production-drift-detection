@@ -2,8 +2,8 @@
 
 import pytest
 
-from driftwatch.alerts.rules import AlertEngine, RollingWindowRule, ThresholdRule
-from driftwatch.alerts.schemas import Alert, Severity
+from production_drift_detection.alerts.rules import AlertEngine, RollingWindowRule, ThresholdRule
+from production_drift_detection.alerts.schemas import Alert, Severity
 
 
 class TestAlertSchema:

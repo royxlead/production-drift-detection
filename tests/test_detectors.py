@@ -3,10 +3,10 @@
 import numpy as np
 import pytest
 
-from driftwatch.detectors.adwin import ADWINDetector
-from driftwatch.detectors.kl import KLDivergenceDetector
-from driftwatch.detectors.mmd import MMDDetector
-from driftwatch.detectors.psi import PSIDetector
+from production_drift_detection.detectors.adwin import ADWINDetector
+from production_drift_detection.detectors.kl import KLDivergenceDetector
+from production_drift_detection.detectors.mmd import MMDDetector
+from production_drift_detection.detectors.psi import PSIDetector
 
 
 class TestBaseDetector:

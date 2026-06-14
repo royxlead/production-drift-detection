@@ -3,14 +3,14 @@ requires = ["setuptools>=64.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "driftwatch"
+name = "production-drift-detection"
 version = "0.1.0"
 description = "Real-time data drift detection for deployed machine learning systems"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 authors = [
-    {name = "DriftWatch Contributors"},
+    {name = "Production Drift Detection Contributors"},
 ]
 
 keywords = [
@@ -69,15 +69,15 @@ dev = [
     "nbformat>=5.5.0",
 ]
 all = [
-    "driftwatch[pytorch,transformers,dev]",
+    "production-drift-detection[pytorch,transformers,dev]",
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["driftwatch*"]
+include = ["production-drift-detection*"]
 
 [tool.setuptools.package-data]
-driftwatch = ["py.typed"]
+production-drift-detection = ["py.typed"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
