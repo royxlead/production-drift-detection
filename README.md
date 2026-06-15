@@ -450,7 +450,7 @@ Confidence is continuous - it responds to small perturbations. Accuracy is disco
 
 ## Related Work
 
-- [Self-Diagnosing Neural Models](https://github.com/royxlead/self-diagnosing-neural-models-python) - Unsupervised confidence estimation for neural networks
+- [Unsupervised Confidence Estimation](https://github.com/royxlead/unsupervised-confidence-estimation) - Unsupervised Confidence Estimation
 - [CURA](https://github.com/royxlead/cura-python) - RAG reliability and hallucination mitigation
 - [AutoLLM Forge](https://github.com/royxlead/autollmforge-python) - Efficient LLM fine-tuning
 
